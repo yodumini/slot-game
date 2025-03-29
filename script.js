@@ -4,6 +4,7 @@ class SlotGame {
         this.balance = 1000;
         this.betAmount = 10;
         this.spins = 1;
+        this.remainingSpins = 0;
         this.isSpinning = false;
         this.slots = [
             document.getElementById('slot1'),
@@ -21,6 +22,8 @@ class SlotGame {
         document.getElementById('decreaseBet').addEventListener('click', () => this.changeBet(-10));
         document.getElementById('increaseSpins').addEventListener('click', () => this.changeSpins(1));
         document.getElementById('decreaseSpins').addEventListener('click', () => this.changeSpins(-1));
+        document.getElementById('resetSpins').addEventListener('click', () => this.resetSpins());
+        document.getElementById('resetBet').addEventListener('click', () => this.resetBet());
         
         // 添加快捷下注按鈕的事件監聽
         document.querySelectorAll('.quick-spin-btn').forEach(button => {
@@ -35,6 +38,41 @@ class SlotGame {
         document.getElementById('balance').textContent = this.balance;
         document.getElementById('betAmount').textContent = this.betAmount;
         document.getElementById('spinsAmount').textContent = this.spins;
+        document.getElementById('remainingSpins').textContent = this.remainingSpins;
+    }
+
+    showAlert(message) {
+        const alert = document.createElement('div');
+        alert.className = 'alert-notification';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+
+    resetSpins() {
+        if (this.isSpinning) {
+            this.showAlert('遊戲進行中無法重置！');
+            return;
+        }
+        
+        this.spins = 1;
+        this.remainingSpins = 0;
+        this.updateDisplay();
+        this.showAlert('已重置下注次數！');
+    }
+
+    resetBet() {
+        if (this.isSpinning) {
+            this.showAlert('遊戲進行中無法重置！');
+            return;
+        }
+        
+        this.betAmount = 10;
+        this.updateDisplay();
+        this.showAlert('已重置下注金額！');
     }
 
     setQuickSpins(spins) {
@@ -44,9 +82,10 @@ class SlotGame {
         const totalCost = this.betAmount * spins;
         if (totalCost <= this.balance) {
             this.spins = spins;
+            this.remainingSpins = spins;
             this.updateDisplay();
         } else {
-            alert('積分不足！');
+            this.showAlert(`積分不足！需要 ${totalCost} 積分，當前積分：${this.balance}`);
         }
     }
 
@@ -57,6 +96,8 @@ class SlotGame {
         if (newBet >= 10 && newBet <= this.balance) {
             this.betAmount = newBet;
             this.updateDisplay();
+        } else if (newBet > this.balance) {
+            this.showAlert(`下注金額不能超過當前積分：${this.balance}`);
         }
     }
 
@@ -64,9 +105,16 @@ class SlotGame {
         if (this.isSpinning) return;
         
         const newSpins = this.spins + amount;
+        const totalCost = this.betAmount * newSpins;
+        
         if (newSpins >= 1 && newSpins <= 100) {
-            this.spins = newSpins;
-            this.updateDisplay();
+            if (totalCost <= this.balance) {
+                this.spins = newSpins;
+                this.remainingSpins = newSpins;
+                this.updateDisplay();
+            } else {
+                this.showAlert(`積分不足！需要 ${totalCost} 積分，當前積分：${this.balance}`);
+            }
         }
     }
 
@@ -135,10 +183,17 @@ class SlotGame {
     }
 
     async spin() {
-        if (this.isSpinning || this.balance < this.betAmount * this.spins) return;
+        const totalCost = this.betAmount * this.spins;
+        if (this.isSpinning) return;
+        
+        if (totalCost > this.balance) {
+            this.showAlert(`積分不足！需要 ${totalCost} 積分，當前積分：${this.balance}`);
+            return;
+        }
 
         this.isSpinning = true;
-        this.balance -= this.betAmount * this.spins;
+        this.balance -= totalCost;
+        this.remainingSpins = this.spins;
         this.updateDisplay();
 
         const spinButton = document.getElementById('spinButton');
@@ -156,6 +211,9 @@ class SlotGame {
             if (winnings > 0) {
                 this.showWinnings(winnings);
             }
+
+            this.remainingSpins--;
+            this.updateDisplay();
 
             // 如果不是最後一次spin，等待一段時間再開始下一次
             if (i < this.spins - 1) {

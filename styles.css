@@ -191,4 +191,43 @@ button:hover {
 .quick-spin-btn:hover {
     background: #666666;
     transform: scale(1.05);
+}
+
+.remaining-spins {
+    font-size: 1.2rem;
+    color: #ffd700;
+    margin: 0.5rem 0;
+    font-weight: bold;
+}
+
+.alert-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 0, 0, 0.9);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    animation: slideDown 0.5s ease-out;
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.reset-button {
+    background: #4a4a4a;
+    color: #ffd700;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin: 0.5rem 0;
+}
+
+.reset-button:hover {
+    background: #666666;
+    transform: scale(1.05);
 } 
