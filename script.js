@@ -6,11 +6,7 @@ class SlotGame {
         this.spins = 1;
         this.remainingSpins = 0;
         this.isSpinning = false;
-        this.slots = [
-            document.getElementById('slot1'),
-            document.getElementById('slot2'),
-            document.getElementById('slot3')
-        ];
+        this.slots = Array.from({ length: 25 }, (_, i) => document.getElementById(`slot${i + 1}`));
         
         this.initializeEventListeners();
         this.updateDisplay();
@@ -133,24 +129,72 @@ class SlotGame {
         return this.symbols[Math.floor(Math.random() * this.symbols.length)];
     }
 
-    calculateWinnings(results) {
-        const counts = {};
-        results.forEach(symbol => {
-            counts[symbol] = (counts[symbol] || 0) + 1;
-        });
-
+    calculateWinnings() {
         let winnings = 0;
-        for (const [symbol, count] of Object.entries(counts)) {
-            if (count >= 3) {
-                const multiplier = this.getMultiplier(symbol);
-                winnings += this.betAmount * multiplier;
+        const rows = 5;
+        const cols = 5;
+        
+        // 檢查水平線
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols - 2; col++) {
+                const index = row * cols + col;
+                const symbol1 = this.slots[index].querySelector('.symbol').textContent;
+                const symbol2 = this.slots[index + 1].querySelector('.symbol').textContent;
+                const symbol3 = this.slots[index + 2].querySelector('.symbol').textContent;
+                
+                if (symbol1 === symbol2 && symbol2 === symbol3) {
+                    winnings += this.getSymbolValue(symbol1);
+                }
             }
         }
-
+        
+        // 檢查垂直線
+        for (let col = 0; col < cols; col++) {
+            for (let row = 0; row < rows - 2; row++) {
+                const index = row * cols + col;
+                const symbol1 = this.slots[index].querySelector('.symbol').textContent;
+                const symbol2 = this.slots[index + cols].querySelector('.symbol').textContent;
+                const symbol3 = this.slots[index + 2 * cols].querySelector('.symbol').textContent;
+                
+                if (symbol1 === symbol2 && symbol2 === symbol3) {
+                    winnings += this.getSymbolValue(symbol1);
+                }
+            }
+        }
+        
+        // 檢查對角線
+        // 左上到右下
+        for (let row = 0; row < rows - 2; row++) {
+            for (let col = 0; col < cols - 2; col++) {
+                const index = row * cols + col;
+                const symbol1 = this.slots[index].querySelector('.symbol').textContent;
+                const symbol2 = this.slots[index + cols + 1].querySelector('.symbol').textContent;
+                const symbol3 = this.slots[index + 2 * cols + 2].querySelector('.symbol').textContent;
+                
+                if (symbol1 === symbol2 && symbol2 === symbol3) {
+                    winnings += this.getSymbolValue(symbol1);
+                }
+            }
+        }
+        
+        // 右上到左下
+        for (let row = 0; row < rows - 2; row++) {
+            for (let col = 2; col < cols; col++) {
+                const index = row * cols + col;
+                const symbol1 = this.slots[index].querySelector('.symbol').textContent;
+                const symbol2 = this.slots[index + cols - 1].querySelector('.symbol').textContent;
+                const symbol3 = this.slots[index + 2 * cols - 2].querySelector('.symbol').textContent;
+                
+                if (symbol1 === symbol2 && symbol2 === symbol3) {
+                    winnings += this.getSymbolValue(symbol1);
+                }
+            }
+        }
+        
         return winnings;
     }
 
-    getMultiplier(symbol) {
+    getSymbolValue(symbol) {
         const multipliers = {
             '💎': 10,
             '7️⃣': 8,
@@ -164,33 +208,72 @@ class SlotGame {
         return multipliers[symbol] || 1;
     }
 
-    async singleSpin() {
-        const results = [];
-        const spinDuration = 2000; // 2秒
-
-        // 為每個老虎機創建動畫
-        const spinPromises = this.slots.map((slot, index) => {
-            return new Promise(resolve => {
-                const symbol = slot.querySelector('.symbol');
-                symbol.style.animation = 'spin 0.1s linear infinite';
+    async spinSlots() {
+        const rows = 5;
+        const cols = 5;
+        let totalWinnings = 0;
+        
+        for (let i = 0; i < this.remainingSpins; i++) {
+            // 從左到右依次轉動每一列
+            for (let col = 0; col < cols; col++) {
+                // 同時轉動該列的所有格子
+                const spinPromises = [];
+                for (let row = 0; row < rows; row++) {
+                    const index = row * cols + col;
+                    const slot = this.slots[index];
+                    const symbolContainer = slot.querySelector('.symbol-container');
+                    const symbol = slot.querySelector('.symbol');
+                    
+                    // 添加轉動動畫
+                    symbolContainer.classList.add('spinning');
+                    
+                    // 隨機選擇符號
+                    const randomSymbol = this.symbols[Math.floor(Math.random() * this.symbols.length)];
+                    
+                    // 創建一個 Promise 來處理動畫結束
+                    const spinPromise = new Promise(resolve => {
+                        setTimeout(() => {
+                            // 移除轉動動畫並更新符號
+                            symbolContainer.classList.remove('spinning');
+                            symbol.textContent = randomSymbol;
+                            resolve();
+                        }, 500); // 動畫持續時間
+                    });
+                    
+                    spinPromises.push(spinPromise);
+                }
                 
-                const interval = setInterval(() => {
-                    symbol.textContent = this.getRandomSymbol();
-                }, 100);
-
-                setTimeout(() => {
-                    clearInterval(interval);
-                    symbol.style.animation = 'none';
-                    const finalSymbol = this.getRandomSymbol();
-                    symbol.textContent = finalSymbol;
-                    results[index] = finalSymbol;
-                    resolve();
-                }, spinDuration + (index * 200));
-            });
-        });
-
-        await Promise.all(spinPromises);
-        return results;
+                // 等待該列所有格子轉動完成
+                await Promise.all(spinPromises);
+                
+                // 每列之間稍作停頓
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            // 計算獎勵
+            const winnings = this.calculateWinnings();
+            totalWinnings += winnings;
+            
+            // 更新餘額
+            this.balance += winnings;
+            this.updateDisplay();
+            
+            // 每次轉動後稍作停頓
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            this.remainingSpins--;
+            this.updateDisplay();
+        }
+        
+        // 遊戲結束
+        this.isSpinning = false;
+        const spinButton = document.getElementById('spinButton');
+        spinButton.disabled = false;
+        spinButton.textContent = '開始遊戲';
+        
+        if (totalWinnings > 0) {
+            this.showAlert(`恭喜獲得 ${totalWinnings} 點！`);
+        }
     }
 
     async spin() {
@@ -214,33 +297,7 @@ class SlotGame {
         spinButton.disabled = true;
         spinButton.textContent = '遊戲中...';
         
-        let totalWinnings = 0;
-        const spinDuration = 2000; // 2秒
-        const delayBetweenSpins = 500; // 0.5秒
-
-        for (let i = 0; i < this.spins; i++) {
-            const results = await this.singleSpin();
-            const winnings = this.calculateWinnings(results);
-            totalWinnings += winnings;
-
-            if (winnings > 0) {
-                this.showWinnings(winnings);
-            }
-
-            this.remainingSpins--;
-            this.updateDisplay();
-
-            // 如果不是最後一次spin，等待一段時間再開始下一次
-            if (i < this.spins - 1) {
-                await new Promise(resolve => setTimeout(resolve, delayBetweenSpins));
-            }
-        }
-
-        this.balance += totalWinnings;
-        this.updateDisplay();
-        this.isSpinning = false;
-        spinButton.disabled = false;
-        spinButton.textContent = '開始遊戲';
+        await this.spinSlots();
     }
 
     showWinnings(amount) {

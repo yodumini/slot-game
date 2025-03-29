@@ -10,38 +10,66 @@
     <div class="container">
         <h1>老虎機遊戲</h1>
         <div class="game-container">
-            <div class="slot-machine">
-                <div class="slot" id="slot1">
-                    <div class="symbol">🍎</div>
+            <div class="game-layout">
+                <div class="slot-machine">
+                    <div class="slot-row">
+                        <div class="slot" id="slot1"><div class="symbol-container"><div class="symbol">🍎</div></div></div>
+                        <div class="slot" id="slot2"><div class="symbol-container"><div class="symbol">🍊</div></div></div>
+                        <div class="slot" id="slot3"><div class="symbol-container"><div class="symbol">🍇</div></div></div>
+                        <div class="slot" id="slot4"><div class="symbol-container"><div class="symbol">🍒</div></div></div>
+                        <div class="slot" id="slot5"><div class="symbol-container"><div class="symbol">🍋</div></div></div>
+                    </div>
+                    <div class="slot-row">
+                        <div class="slot" id="slot6"><div class="symbol-container"><div class="symbol">🍎</div></div></div>
+                        <div class="slot" id="slot7"><div class="symbol-container"><div class="symbol">🍊</div></div></div>
+                        <div class="slot" id="slot8"><div class="symbol-container"><div class="symbol">🍇</div></div></div>
+                        <div class="slot" id="slot9"><div class="symbol-container"><div class="symbol">🍒</div></div></div>
+                        <div class="slot" id="slot10"><div class="symbol-container"><div class="symbol">🍋</div></div></div>
+                    </div>
+                    <div class="slot-row">
+                        <div class="slot" id="slot11"><div class="symbol-container"><div class="symbol">🍎</div></div></div>
+                        <div class="slot" id="slot12"><div class="symbol-container"><div class="symbol">🍊</div></div></div>
+                        <div class="slot" id="slot13"><div class="symbol-container"><div class="symbol">🍇</div></div></div>
+                        <div class="slot" id="slot14"><div class="symbol-container"><div class="symbol">🍒</div></div></div>
+                        <div class="slot" id="slot15"><div class="symbol-container"><div class="symbol">🍋</div></div></div>
+                    </div>
+                    <div class="slot-row">
+                        <div class="slot" id="slot16"><div class="symbol-container"><div class="symbol">🍎</div></div></div>
+                        <div class="slot" id="slot17"><div class="symbol-container"><div class="symbol">🍊</div></div></div>
+                        <div class="slot" id="slot18"><div class="symbol-container"><div class="symbol">🍇</div></div></div>
+                        <div class="slot" id="slot19"><div class="symbol-container"><div class="symbol">🍒</div></div></div>
+                        <div class="slot" id="slot20"><div class="symbol-container"><div class="symbol">🍋</div></div></div>
+                    </div>
+                    <div class="slot-row">
+                        <div class="slot" id="slot21"><div class="symbol-container"><div class="symbol">🍎</div></div></div>
+                        <div class="slot" id="slot22"><div class="symbol-container"><div class="symbol">🍊</div></div></div>
+                        <div class="slot" id="slot23"><div class="symbol-container"><div class="symbol">🍇</div></div></div>
+                        <div class="slot" id="slot24"><div class="symbol-container"><div class="symbol">🍒</div></div></div>
+                        <div class="slot" id="slot25"><div class="symbol-container"><div class="symbol">🍋</div></div></div>
+                    </div>
                 </div>
-                <div class="slot" id="slot2">
-                    <div class="symbol">🍊</div>
+                <div class="controls">
+                    <div class="balance">積分: <span id="balance">1000</span></div>
+                    <div class="bet-control">
+                        <button id="decreaseBet">-</button>
+                        <span id="betAmount">10</span>
+                        <button id="increaseBet">+</button>
+                        <button id="resetBet" class="reset-button">重置</button>
+                    </div>
+                    <div class="spins-control">
+                        <button id="decreaseSpins">-</button>
+                        <span id="spinsAmount">1</span>
+                        <button id="increaseSpins">+</button>
+                        <button id="resetSpins" class="reset-button">重置</button>
+                    </div>
+                    <div class="quick-spins">
+                        <button class="quick-spin-btn" data-spins="10">10次</button>
+                        <button class="quick-spin-btn" data-spins="50">50次</button>
+                        <button class="quick-spin-btn" data-spins="100">100次</button>
+                    </div>
+                    <div class="remaining-spins">剩餘次數: <span id="remainingSpins">0</span></div>
+                    <button id="spinButton" class="spin-button">開始</button>
                 </div>
-                <div class="slot" id="slot3">
-                    <div class="symbol">🍇</div>
-                </div>
-            </div>
-            <div class="controls">
-                <div class="balance">積分: <span id="balance">1000</span></div>
-                <div class="bet-control">
-                    <button id="decreaseBet">-</button>
-                    <span id="betAmount">10</span>
-                    <button id="increaseBet">+</button>
-                    <button id="resetBet" class="reset-button">重置</button>
-                </div>
-                <div class="spins-control">
-                    <button id="decreaseSpins">-</button>
-                    <span id="spinsAmount">1</span>
-                    <button id="increaseSpins">+</button>
-                    <button id="resetSpins" class="reset-button">重置</button>
-                </div>
-                <div class="quick-spins">
-                    <button class="quick-spin-btn" data-spins="10">10次</button>
-                    <button class="quick-spin-btn" data-spins="50">50次</button>
-                    <button class="quick-spin-btn" data-spins="100">100次</button>
-                </div>
-                <div class="remaining-spins">剩餘次數: <span id="remainingSpins">0</span></div>
-                <button id="spinButton" class="spin-button">開始</button>
             </div>
         </div>
     </div>
