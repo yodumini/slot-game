@@ -7,6 +7,7 @@ class SlotGame {
         this.remainingSpins = 0;
         this.isSpinning = false;
         this.slots = Array.from({ length: 25 }, (_, i) => document.getElementById(`slot${i + 1}`));
+        this.winningSlots = new Set();
         
         this.initializeEventListeners();
         this.updateDisplay();
@@ -133,6 +134,7 @@ class SlotGame {
         let winnings = 0;
         const rows = 5;
         const cols = 5;
+        this.winningSlots.clear();
         
         // 檢查水平線
         for (let row = 0; row < rows; row++) {
@@ -144,6 +146,7 @@ class SlotGame {
                 
                 if (symbol1 === symbol2 && symbol2 === symbol3) {
                     winnings += this.getSymbolValue(symbol1);
+                    this.addWinningSlots(index, index + 1, index + 2);
                 }
             }
         }
@@ -158,6 +161,7 @@ class SlotGame {
                 
                 if (symbol1 === symbol2 && symbol2 === symbol3) {
                     winnings += this.getSymbolValue(symbol1);
+                    this.addWinningSlots(index, index + cols, index + 2 * cols);
                 }
             }
         }
@@ -173,6 +177,7 @@ class SlotGame {
                 
                 if (symbol1 === symbol2 && symbol2 === symbol3) {
                     winnings += this.getSymbolValue(symbol1);
+                    this.addWinningSlots(index, index + cols + 1, index + 2 * cols + 2);
                 }
             }
         }
@@ -187,6 +192,7 @@ class SlotGame {
                 
                 if (symbol1 === symbol2 && symbol2 === symbol3) {
                     winnings += this.getSymbolValue(symbol1);
+                    this.addWinningSlots(index, index + cols - 1, index + 2 * cols - 2);
                 }
             }
         }
@@ -208,16 +214,56 @@ class SlotGame {
         return multipliers[symbol] || 1;
     }
 
+    addWinningSlots(index1, index2, index3) {
+        this.winningSlots.add(index1);
+        this.winningSlots.add(index2);
+        this.winningSlots.add(index3);
+    }
+
+    showWinningSlots() {
+        // 清除之前的中獎效果
+        this.slots.forEach(slot => {
+            slot.classList.remove('winning');
+        });
+
+        // 顯示新的中獎效果
+        this.winningSlots.forEach(index => {
+            this.slots[index].classList.add('winning');
+        });
+    }
+
+    fadeOutWinningEffects() {
+        // 淡出中獎格子效果
+        this.slots.forEach(slot => {
+            if (slot.classList.contains('winning')) {
+                slot.classList.add('fade-out');
+                setTimeout(() => {
+                    slot.classList.remove('winning', 'fade-out');
+                }, 250);
+            }
+        });
+    }
+
     async spinSlots() {
         const rows = 5;
         const cols = 5;
         let totalWinnings = 0;
+        let currentSpins = this.remainingSpins; // 保存初始的剩餘次數
         
-        for (let i = 0; i < this.remainingSpins; i++) {
-            // 從左到右依次轉動每一列
+        for (let i = 0; i < currentSpins; i++) {
+            // 在開始新的轉動前，淡出之前的中獎效果
+            if (i > 0) {
+                this.fadeOutWinningEffects();
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            // 所有格子同時開始轉動
+            const allSpinPromises = [];
+            
+            // 為每一列創建一個基礎延遲時間（每列增加50ms的延遲）
             for (let col = 0; col < cols; col++) {
-                // 同時轉動該列的所有格子
-                const spinPromises = [];
+                const baseDelay = col * 50; // 每列增加50ms的延遲
+                
                 for (let row = 0; row < rows; row++) {
                     const index = row * cols + col;
                     const slot = this.slots[index];
@@ -230,6 +276,9 @@ class SlotGame {
                     // 隨機選擇符號
                     const randomSymbol = this.symbols[Math.floor(Math.random() * this.symbols.length)];
                     
+                    // 為每個格子創建一個隨機的結束時間（400-600ms之間）
+                    const randomEndTime = 400 + Math.random() * 200; // 400-600ms
+                    
                     // 創建一個 Promise 來處理動畫結束
                     const spinPromise = new Promise(resolve => {
                         setTimeout(() => {
@@ -237,18 +286,15 @@ class SlotGame {
                             symbolContainer.classList.remove('spinning');
                             symbol.textContent = randomSymbol;
                             resolve();
-                        }, 500); // 動畫持續時間
+                        }, baseDelay + randomEndTime);
                     });
                     
-                    spinPromises.push(spinPromise);
+                    allSpinPromises.push(spinPromise);
                 }
-                
-                // 等待該列所有格子轉動完成
-                await Promise.all(spinPromises);
-                
-                // 每列之間稍作停頓
-                await new Promise(resolve => setTimeout(resolve, 200));
             }
+            
+            // 等待所有格子轉動完成
+            await Promise.all(allSpinPromises);
             
             // 計算獎勵
             const winnings = this.calculateWinnings();
@@ -258,8 +304,18 @@ class SlotGame {
             this.balance += winnings;
             this.updateDisplay();
             
+            // 顯示中獎效果
+            if (winnings > 0) {
+                this.showWinningSlots();
+                // 等待閃爍效果完成（0.3秒 * 2次 = 0.6秒）
+                await new Promise(resolve => setTimeout(resolve, 600));
+                // 淡出效果
+                this.fadeOutWinningEffects();
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
             // 每次轉動後稍作停頓
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 200));
             
             this.remainingSpins--;
             this.updateDisplay();
@@ -290,7 +346,7 @@ class SlotGame {
 
         this.isSpinning = true;
         this.balance -= totalCost;
-        this.remainingSpins = this.spins;
+        this.remainingSpins = this.spins; // 設置剩餘次數
         this.updateDisplay();
         
         const spinButton = document.getElementById('spinButton');
