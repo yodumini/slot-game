@@ -79,8 +79,10 @@ h1 {
     gap: 1rem;
 }
 
-button {
-    background: #ffd700;
+.bet-control button,
+.spins-control button {
+    background: #4a4a4a;
+    color: #ffd700;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 5px;
@@ -89,9 +91,25 @@ button {
     transition: all 0.3s ease;
 }
 
-button:hover {
-    background: #ffed4a;
+.bet-control button:hover,
+.spins-control button:hover {
+    background: #666;
     transform: scale(1.05);
+}
+
+.bet-control button:active,
+.spins-control button:active {
+    transform: scale(0.95);
+}
+
+.bet-control span,
+.spins-control span {
+    margin: 0 1rem;
+    font-size: 1.2rem;
+    color: #ffd700;
+    min-width: 2rem;
+    display: inline-block;
+    text-align: center;
 }
 
 .spin-button {
@@ -228,6 +246,10 @@ button:hover {
 }
 
 .reset-button:hover {
-    background: #666666;
+    background: #666;
     transform: scale(1.05);
+}
+
+.reset-button:active {
+    transform: scale(0.95);
 } 
