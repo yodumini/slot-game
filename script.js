@@ -21,12 +21,33 @@ class SlotGame {
         document.getElementById('decreaseBet').addEventListener('click', () => this.changeBet(-10));
         document.getElementById('increaseSpins').addEventListener('click', () => this.changeSpins(1));
         document.getElementById('decreaseSpins').addEventListener('click', () => this.changeSpins(-1));
+        
+        // 添加快捷下注按鈕的事件監聽
+        document.querySelectorAll('.quick-spin-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const spins = parseInt(button.dataset.spins);
+                this.setQuickSpins(spins);
+            });
+        });
     }
 
     updateDisplay() {
         document.getElementById('balance').textContent = this.balance;
         document.getElementById('betAmount').textContent = this.betAmount;
         document.getElementById('spinsAmount').textContent = this.spins;
+    }
+
+    setQuickSpins(spins) {
+        if (this.isSpinning) return;
+        
+        // 檢查積分是否足夠
+        const totalCost = this.betAmount * spins;
+        if (totalCost <= this.balance) {
+            this.spins = spins;
+            this.updateDisplay();
+        } else {
+            alert('積分不足！');
+        }
     }
 
     changeBet(amount) {
@@ -43,7 +64,7 @@ class SlotGame {
         if (this.isSpinning) return;
         
         const newSpins = this.spins + amount;
-        if (newSpins >= 1 && newSpins <= 10) {
+        if (newSpins >= 1 && newSpins <= 100) {
             this.spins = newSpins;
             this.updateDisplay();
         }

@@ -170,4 +170,25 @@ button:hover {
     min-width: 3rem;
     display: inline-block;
     color: #ffd700;
+}
+
+.quick-spins {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.quick-spin-btn {
+    background: #4a4a4a;
+    color: #ffd700;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.quick-spin-btn:hover {
+    background: #666666;
+    transform: scale(1.05);
 } 
