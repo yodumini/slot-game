@@ -102,7 +102,7 @@ class SlotGame {
         const results = [];
         const spinDuration = 2000; // 2秒
 
-        // 为每个老虎机创建动画
+        // 為每個老虎機創建動畫
         const spinPromises = this.slots.map((slot, index) => {
             return new Promise(resolve => {
                 const symbol = slot.querySelector('.symbol');
@@ -150,7 +150,7 @@ class SlotGame {
                 this.showWinnings(winnings);
             }
 
-            // 如果不是最后一次spin，等待一段时间再开始下一次
+            // 如果不是最後一次spin，等待一段時間再開始下一次
             if (i < this.spins - 1) {
                 await new Promise(resolve => setTimeout(resolve, delayBetweenSpins));
             }
@@ -165,7 +165,7 @@ class SlotGame {
     showWinnings(amount) {
         const notification = document.createElement('div');
         notification.className = 'win-notification';
-        notification.textContent = `恭喜赢得 ${amount} 积分！`;
+        notification.textContent = `恭喜贏得 ${amount} 積分！`;
         document.body.appendChild(notification);
 
         setTimeout(() => {
@@ -174,5 +174,5 @@ class SlotGame {
     }
 }
 
-// 初始化游戏
+// 初始化遊戲
 const game = new SlotGame(); 
