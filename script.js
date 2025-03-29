@@ -3,7 +3,6 @@ class SlotGame {
         this.symbols = ['🍎', '🍊', '🍇', '🍒', '🍋', '💎', '7️⃣', '🎰'];
         this.balance = 1000;
         this.betAmount = 10;
-        this.lines = 1;
         this.spins = 1;
         this.isSpinning = false;
         this.slots = [
@@ -20,8 +19,6 @@ class SlotGame {
         document.getElementById('spinButton').addEventListener('click', () => this.spin());
         document.getElementById('increaseBet').addEventListener('click', () => this.changeBet(10));
         document.getElementById('decreaseBet').addEventListener('click', () => this.changeBet(-10));
-        document.getElementById('increaseLines').addEventListener('click', () => this.changeLines(1));
-        document.getElementById('decreaseLines').addEventListener('click', () => this.changeLines(-1));
         document.getElementById('increaseSpins').addEventListener('click', () => this.changeSpins(1));
         document.getElementById('decreaseSpins').addEventListener('click', () => this.changeSpins(-1));
     }
@@ -29,7 +26,6 @@ class SlotGame {
     updateDisplay() {
         document.getElementById('balance').textContent = this.balance;
         document.getElementById('betAmount').textContent = this.betAmount;
-        document.getElementById('linesAmount').textContent = this.lines;
         document.getElementById('spinsAmount').textContent = this.spins;
     }
 
@@ -39,16 +35,6 @@ class SlotGame {
         const newBet = this.betAmount + amount;
         if (newBet >= 10 && newBet <= this.balance) {
             this.betAmount = newBet;
-            this.updateDisplay();
-        }
-    }
-
-    changeLines(amount) {
-        if (this.isSpinning) return;
-        
-        const newLines = this.lines + amount;
-        if (newLines >= 1 && newLines <= 10) {
-            this.lines = newLines;
             this.updateDisplay();
         }
     }
@@ -81,7 +67,7 @@ class SlotGame {
             }
         }
 
-        return winnings * this.lines;
+        return winnings;
     }
 
     getMultiplier(symbol) {
@@ -128,10 +114,10 @@ class SlotGame {
     }
 
     async spin() {
-        if (this.isSpinning || this.balance < this.betAmount * this.lines * this.spins) return;
+        if (this.isSpinning || this.balance < this.betAmount * this.spins) return;
 
         this.isSpinning = true;
-        this.balance -= this.betAmount * this.lines * this.spins;
+        this.balance -= this.betAmount * this.spins;
         this.updateDisplay();
 
         const spinButton = document.getElementById('spinButton');
