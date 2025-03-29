@@ -76,46 +76,57 @@ class SlotGame {
     }
 
     setQuickSpins(spins) {
-        if (this.isSpinning) return;
-        
-        // 檢查積分是否足夠
-        const totalCost = this.betAmount * spins;
-        if (totalCost <= this.balance) {
-            this.spins = spins;
-            this.remainingSpins = spins;
-            this.updateDisplay();
-        } else {
-            this.showAlert(`積分不足！需要 ${totalCost} 積分，當前積分：${this.balance}`);
+        if (this.isSpinning) {
+            this.showAlert('遊戲進行中無法更改次數！');
+            return;
         }
+        
+        const totalCost = spins * this.betAmount;
+        if (totalCost > this.balance) {
+            this.showAlert(`餘額不足！需要 ${totalCost} 點，當前餘額 ${this.balance} 點`);
+            return;
+        }
+        
+        this.spins = spins;
+        this.updateDisplay();
     }
 
     changeBet(amount) {
-        if (this.isSpinning) return;
+        if (this.isSpinning) {
+            this.showAlert('遊戲進行中無法更改下注金額！');
+            return;
+        }
         
         const newBet = this.betAmount + amount;
-        if (newBet >= 10 && newBet <= this.balance) {
-            this.betAmount = newBet;
-            this.updateDisplay();
-        } else if (newBet > this.balance) {
-            this.showAlert(`下注金額不能超過當前積分：${this.balance}`);
+        if (newBet < 10) {
+            this.showAlert('最小下注金額為 10！');
+            return;
         }
+        
+        this.betAmount = newBet;
+        this.updateDisplay();
     }
 
     changeSpins(amount) {
-        if (this.isSpinning) return;
+        if (this.isSpinning) {
+            this.showAlert('遊戲進行中無法更改次數！');
+            return;
+        }
         
         const newSpins = this.spins + amount;
-        const totalCost = this.betAmount * newSpins;
-        
-        if (newSpins >= 1 && newSpins <= 100) {
-            if (totalCost <= this.balance) {
-                this.spins = newSpins;
-                this.remainingSpins = newSpins;
-                this.updateDisplay();
-            } else {
-                this.showAlert(`積分不足！需要 ${totalCost} 積分，當前積分：${this.balance}`);
-            }
+        if (newSpins < 1) {
+            this.showAlert('最少需要 1 次！');
+            return;
         }
+        
+        const totalCost = newSpins * this.betAmount;
+        if (totalCost > this.balance) {
+            this.showAlert(`餘額不足！需要 ${totalCost} 點，當前餘額 ${this.balance} 點`);
+            return;
+        }
+        
+        this.spins = newSpins;
+        this.updateDisplay();
     }
 
     getRandomSymbol() {
@@ -183,11 +194,14 @@ class SlotGame {
     }
 
     async spin() {
-        const totalCost = this.betAmount * this.spins;
-        if (this.isSpinning) return;
-        
+        if (this.isSpinning) {
+            this.showAlert('遊戲進行中！');
+            return;
+        }
+
+        const totalCost = this.spins * this.betAmount;
         if (totalCost > this.balance) {
-            this.showAlert(`積分不足！需要 ${totalCost} 積分，當前積分：${this.balance}`);
+            this.showAlert(`餘額不足！需要 ${totalCost} 點，當前餘額 ${this.balance} 點`);
             return;
         }
 
@@ -195,10 +209,11 @@ class SlotGame {
         this.balance -= totalCost;
         this.remainingSpins = this.spins;
         this.updateDisplay();
-
+        
         const spinButton = document.getElementById('spinButton');
         spinButton.disabled = true;
-
+        spinButton.textContent = '遊戲中...';
+        
         let totalWinnings = 0;
         const spinDuration = 2000; // 2秒
         const delayBetweenSpins = 500; // 0.5秒
@@ -225,6 +240,7 @@ class SlotGame {
         this.updateDisplay();
         this.isSpinning = false;
         spinButton.disabled = false;
+        spinButton.textContent = '開始遊戲';
     }
 
     showWinnings(amount) {
