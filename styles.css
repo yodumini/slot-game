@@ -70,27 +70,30 @@ h1 {
 }
 
 .symbol-container {
+    perspective: 1000px;
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    transform-style: preserve-3d;
-    transition: transform 0.1s ease-out;
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .symbol {
-    font-size: 2.5rem;
-    transition: transform 0.1s ease-out;
+    font-size: 2rem;
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.spinning .symbol {
-    animation: spin 0.1s linear infinite;
+.spinning .symbol-container {
+    animation: spinVertical 0.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-@keyframes spin {
+@keyframes spinVertical {
     0% {
         transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-50%);
     }
     100% {
         transform: translateY(-100%);
@@ -98,7 +101,7 @@ h1 {
 }
 
 .winning {
-    animation: winning 0.3s ease-in-out 2;
+    animation: winning 0.3s cubic-bezier(0.4, 0, 0.2, 1) 2;
 }
 
 @keyframes winning {
@@ -117,7 +120,7 @@ h1 {
 }
 
 .fade-out {
-    animation: fadeOut 0.25s ease-out forwards;
+    animation: fadeOut 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes fadeOut {
@@ -327,5 +330,4 @@ h1 {
 
 .reset-button:active {
     transform: scale(0.95);
-} 
 } 

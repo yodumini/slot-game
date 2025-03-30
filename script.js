@@ -245,60 +245,63 @@ class SlotGame {
     }
 
     async spinSlots() {
-        const rows = 5;
-        const cols = 5;
-        let totalWinnings = 0;
-        let currentSpins = this.remainingSpins; // 保存初始的剩餘次數
-        
-        for (let i = 0; i < currentSpins; i++) {
-            // 在開始新的轉動前，淡出之前的中獎效果
-            if (i > 0) {
-                this.fadeOutWinningEffects();
-                await new Promise(resolve => setTimeout(resolve, 200));
-            }
+        const currentSpins = this.remainingSpins;
+        for (let spin = 0; spin < currentSpins; spin++) {
+            // 更新剩餘次數顯示
+            this.remainingSpins--;
+            this.updateDisplay();
             
             // 所有格子同時開始轉動
-            const allSpinPromises = [];
+            const spinPromises = this.slots.map((slot, index) => {
+                return new Promise(resolve => {
+                    // 計算該格子的列和行
+                    const col = index % 5;
+                    const row = Math.floor(index / 5);
+                    
+                    // 基礎延遲時間（每列增加30ms）
+                    const baseDelay = col * 30;
+                    
+                    // 隨機停止時間（300-500ms）
+                    const randomDelay = Math.random() * 200 + 300;
+                    
+                    // 總延遲時間
+                    const totalDelay = baseDelay + randomDelay;
+                    
+                    // 開始轉動
+                    slot.classList.add('spinning');
+                    
+                    // 在轉動過程中隨機更新圖示
+                    const updateInterval = setInterval(() => {
+                        const randomSymbol = this.symbols[Math.floor(Math.random() * this.symbols.length)];
+                        const symbolContainer = slot.querySelector('.symbol-container');
+                        const symbol = slot.querySelector('.symbol');
+                        symbol.textContent = randomSymbol;
+                        symbolContainer.style.transform = `translateY(${Math.random() * -100}%)`;
+                    }, 80); // 從100ms改為80ms
+                    
+                    // 設置停止時間
+                    setTimeout(() => {
+                        clearInterval(updateInterval);
+                        slot.classList.remove('spinning');
+                        resolve();
+                    }, totalDelay);
+                });
+            });
             
-            // 為每一列創建一個基礎延遲時間（每列增加50ms的延遲）
-            for (let col = 0; col < cols; col++) {
-                const baseDelay = col * 50; // 每列增加50ms的延遲
-                
-                for (let row = 0; row < rows; row++) {
-                    const index = row * cols + col;
-                    const slot = this.slots[index];
-                    const symbolContainer = slot.querySelector('.symbol-container');
-                    const symbol = slot.querySelector('.symbol');
-                    
-                    // 添加轉動動畫
-                    symbolContainer.classList.add('spinning');
-                    
-                    // 隨機選擇符號
-                    const randomSymbol = this.symbols[Math.floor(Math.random() * this.symbols.length)];
-                    
-                    // 為每個格子創建一個隨機的結束時間（400-600ms之間）
-                    const randomEndTime = 400 + Math.random() * 200; // 400-600ms
-                    
-                    // 創建一個 Promise 來處理動畫結束
-                    const spinPromise = new Promise(resolve => {
-                        setTimeout(() => {
-                            // 移除轉動動畫並更新符號
-                            symbolContainer.classList.remove('spinning');
-                            symbol.textContent = randomSymbol;
-                            resolve();
-                        }, baseDelay + randomEndTime);
-                    });
-                    
-                    allSpinPromises.push(spinPromise);
-                }
-            }
+            // 等待所有格子停止
+            await Promise.all(spinPromises);
             
-            // 等待所有格子轉動完成
-            await Promise.all(allSpinPromises);
+            // 更新所有格子的最終圖示
+            this.slots.forEach(slot => {
+                const randomSymbol = this.symbols[Math.floor(Math.random() * this.symbols.length)];
+                const symbolContainer = slot.querySelector('.symbol-container');
+                const symbol = slot.querySelector('.symbol');
+                symbol.textContent = randomSymbol;
+                symbolContainer.style.transform = 'translateY(0)';
+            });
             
             // 計算獎勵
             const winnings = this.calculateWinnings();
-            totalWinnings += winnings;
             
             // 更新餘額
             this.balance += winnings;
@@ -307,18 +310,15 @@ class SlotGame {
             // 顯示中獎效果
             if (winnings > 0) {
                 this.showWinningSlots();
-                // 等待閃爍效果完成（0.3秒 * 2次 = 0.6秒）
-                await new Promise(resolve => setTimeout(resolve, 600));
+                // 等待閃爍效果完成（0.4秒 * 2次 = 0.8秒）
+                await new Promise(resolve => setTimeout(resolve, 800));
                 // 淡出效果
                 this.fadeOutWinningEffects();
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 300));
             }
             
-            // 每次轉動後稍作停頓
-            await new Promise(resolve => setTimeout(resolve, 200));
-            
-            this.remainingSpins--;
-            this.updateDisplay();
+            // 等待一段時間後進行下一次轉動
+            await new Promise(resolve => setTimeout(resolve, 150));
         }
         
         // 遊戲結束
@@ -327,8 +327,8 @@ class SlotGame {
         spinButton.disabled = false;
         spinButton.textContent = '開始遊戲';
         
-        if (totalWinnings > 0) {
-            this.showAlert(`恭喜獲得 ${totalWinnings} 點！`);
+        if (this.calculateWinnings() > 0) {
+            this.showAlert(`恭喜獲得 ${this.calculateWinnings()} 點！`);
         }
     }
 
